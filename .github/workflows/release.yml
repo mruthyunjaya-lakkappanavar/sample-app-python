@@ -1,0 +1,14 @@
+name: Release
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    uses: mruthyunjaya-lakkappanavar/github-shared-workflows/.github/workflows/reusable-release.yml@main
+    with:
+      language: python
+      enable_changelog: true
+      enable_slack_notify: true
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
