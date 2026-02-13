@@ -6,9 +6,18 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   ci:
     uses: mruthyunjaya-lakkappanavar/github-shared-workflows/.github/workflows/reusable-ci.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
     with:
       language: python
       language_version: "3.11"
