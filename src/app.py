@@ -17,7 +17,7 @@ def health():
 @app.get("/api/greet")
 def greet(name: str = Query(default="World")):
     """Greeting endpoint."""
-    return {"message": f"Hello, {name}!"}
+    return {"message": f"Hi, {name}!"}  # Changed Hello → Hi (breaks test)
 
 
 if __name__ == "__main__":
