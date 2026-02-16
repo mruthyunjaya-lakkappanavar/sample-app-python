@@ -4,8 +4,6 @@ These tests are preserved for backward compatibility and are included
 in the regression test run. They use the shared conftest.py fixtures.
 """
 
-import pytest
-
 
 def test_health_endpoint(client):
     """Test the health check endpoint returns OK."""

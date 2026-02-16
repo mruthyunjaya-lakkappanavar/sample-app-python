@@ -201,7 +201,7 @@ class TestItemDelete:
 
     def test_delete_does_not_affect_others(self, client):
         """Deleting one item should not affect other items."""
-        res1 = client.post("/api/items", json={"name": "Keep"})
+        client.post("/api/items", json={"name": "Keep"})
         res2 = client.post("/api/items", json={"name": "Delete"})
 
         client.delete(f"/api/items/{res2.json()['id']}")

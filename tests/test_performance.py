@@ -10,7 +10,6 @@ Marked with pytest marker 'performance' for selective execution:
 """
 
 import time
-import concurrent.futures
 import pytest
 
 pytestmark = pytest.mark.performance
