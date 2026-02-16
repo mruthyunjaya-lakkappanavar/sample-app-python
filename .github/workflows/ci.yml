@@ -1,3 +1,21 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#  CI — Standard CI + Integration CI with service containers & parallel stages
+#
+#  Demonstrates:
+#  - Calling MULTIPLE reusable workflows from a single consumer (composition)
+#  - Standard CI: lint + test + security (unchanged)
+#  - Integration CI: sanity + regression (Python 3.11/3.12/3.13 matrix)
+#                    + performance + Docker build/push
+#  - Service containers: PostgreSQL + Redis sidecars
+#  - Parallel test stages: sanity, regression, and performance run concurrently
+#
+#  Jenkins equivalent would require:
+#  - docker.image('postgres:16').inside {} for service containers
+#  - agent { docker { image } } for container-based agents
+#  - parallel { stage('Sanity') {}; stage('Regression') {}; stage('Perf') {} }
+#  - docker.build/push for container image management
+# ═══════════════════════════════════════════════════════════════════════════════
+
 name: CI
 on:
   push:
@@ -10,8 +28,10 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
+  packages: write
 
 jobs:
+  # ── Standard CI (lint + test + security) ──────────────────
   ci:
     uses: mruthyunjaya-lakkappanavar/github-shared-workflows/.github/workflows/reusable-ci.yml@main
     permissions:
@@ -20,9 +40,35 @@ jobs:
       issues: write
     with:
       language: python
-      language_version: "3.11"
+      language_version: "3.12"
       enable_lint: true
       enable_test: true
       enable_security_scan: true
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ── Integration CI (service containers + parallel stages + Docker) ──
+  integration:
+    uses: mruthyunjaya-lakkappanavar/github-shared-workflows/.github/workflows/reusable-integration-ci.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+      packages: write
+    with:
+      language: python
+      language_version: "3.12"
+      # ── Version matrix: test across Python 3.11, 3.12, 3.13 ──
+      language_versions: '["3.11", "3.12", "3.13"]'
+      # ── Parallel test stages ──
+      enable_sanity: true
+      enable_regression: true
+      enable_performance: true
+      # ── Docker build & push to GHCR ──
+      enable_docker_build: true
+      docker_image_name: "sample-app-python"
+      docker_registry: "ghcr.io"
+      # ── Deployment (disabled for now, enable when environments are set up) ──
+      enable_deploy_staging: false
+      enable_deploy_production: false
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

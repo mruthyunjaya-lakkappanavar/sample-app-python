@@ -13,3 +13,5 @@ venv/
 .coverage
 htmlcov/
 test-results.xml
+*.db
+app.db

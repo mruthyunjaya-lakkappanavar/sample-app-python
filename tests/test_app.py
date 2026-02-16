@@ -1,14 +1,10 @@
-"""Tests for the FastAPI application."""
+"""Tests for the FastAPI application (original test suite).
+
+These tests are preserved for backward compatibility and are included
+in the regression test run. They use the shared conftest.py fixtures.
+"""
 
 import pytest
-from fastapi.testclient import TestClient
-from src.app import app
-
-
-@pytest.fixture
-def client():
-    """Create a test client."""
-    return TestClient(app)
 
 
 def test_health_endpoint(client):
