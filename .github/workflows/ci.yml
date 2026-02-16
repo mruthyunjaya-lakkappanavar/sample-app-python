@@ -8,6 +8,10 @@
 #                    + performance + Docker build/push
 #  - Service containers: PostgreSQL + Redis sidecars
 #  - Parallel test stages: sanity, regression, and performance run concurrently
+#  - Concurrency controls (cancel-in-progress)  ← Jenkins: disableConcurrentBuilds()
+#  - Path-based triggering                       ← Jenkins: changeset condition
+#  - Scheduled builds (cron)                     ← Jenkins: cron trigger
+#  - Parameterized builds                        ← Jenkins: parameters {} block
 #
 #  Jenkins equivalent would require:
 #  - docker.image('postgres:16').inside {} for service containers
@@ -20,9 +24,63 @@ name: CI
 on:
   push:
     branches: [main]
+    # ── Path filter: only run CI when source code or config changes ──
+    # Jenkins equivalent: when { changeset "src/**" }
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "requirements*.txt"
+      - "setup.py"
+      - "Dockerfile"
+      - ".github/workflows/ci.yml"
   pull_request_target:
     branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "requirements*.txt"
+      - "setup.py"
+      - "Dockerfile"
+      - ".github/workflows/ci.yml"
+  # ── Scheduled build: nightly regression ──
+  # Jenkins equivalent: triggers { cron('0 3 * * *') }
+  schedule:
+    - cron: "0 3 * * 1-5"   # Weekdays at 3 AM UTC
+  # ── Parameterized build ──
+  # Jenkins equivalent: parameters { choice(name: 'PYTHON_VERSIONS', ...) }
   workflow_dispatch:
+    inputs:
+      python_version:
+        description: "Primary Python version"
+        type: choice
+        default: "3.12"
+        options:
+          - "3.11"
+          - "3.12"
+          - "3.13"
+      regression_versions:
+        description: "Python versions for regression matrix"
+        type: choice
+        default: '["3.11", "3.12", "3.13"]'
+        options:
+          - '["3.11", "3.12", "3.13"]'
+          - '["3.12"]'
+          - '["3.12", "3.13"]'
+      enable_performance:
+        description: "Run performance tests"
+        type: boolean
+        default: true
+      enable_docker:
+        description: "Build Docker image"
+        type: boolean
+        default: true
+
+# ── Concurrency: cancel redundant runs on same branch ──
+# Jenkins equivalent: properties([disableConcurrentBuilds(abortPrevious: true)])
+# GHA advantage: cancel-in-progress is built-in, no plugin needed
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -40,7 +98,7 @@ jobs:
       issues: write
     with:
       language: python
-      language_version: "3.12"
+      language_version: ${{ inputs.python_version || '3.12' }}
       enable_lint: true
       enable_test: true
       enable_security_scan: true
@@ -56,15 +114,15 @@ jobs:
       packages: write
     with:
       language: python
-      language_version: "3.12"
+      language_version: ${{ inputs.python_version || '3.12' }}
       # ── Version matrix: test across Python 3.11, 3.12, 3.13 ──
-      language_versions: '["3.11", "3.12", "3.13"]'
+      language_versions: ${{ inputs.regression_versions || '["3.11", "3.12", "3.13"]' }}
       # ── Parallel test stages ──
       enable_sanity: true
       enable_regression: true
-      enable_performance: true
+      enable_performance: ${{ inputs.enable_performance != false }}
       # ── Docker build & push to GHCR ──
-      enable_docker_build: true
+      enable_docker_build: ${{ inputs.enable_docker != false }}
       docker_image_name: "sample-app-python"
       docker_registry: "ghcr.io"
       # ── Deployment (disabled for now, enable when environments are set up) ──
