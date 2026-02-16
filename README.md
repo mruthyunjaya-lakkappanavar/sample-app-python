@@ -45,4 +45,4 @@ Both workflows are ~15 lines each — all logic lives in the central shared repo
 
 ## License
 
-MIT
+Apache 2.0
