@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/mruthyunjaya-lakkappanavar/sample-app-python/compare/v1.1.0...v1.2.0) (2026-02-16)
+
+
+### Features
+
+* add concurrency, path filters, cron schedule, parameterized dispatch, dependabot ([3903174](https://github.com/mruthyunjaya-lakkappanavar/sample-app-python/commit/3903174d4c3a217e3921a1622edeb5962d1927e0))
+* add database CRUD, categorized tests, Dockerfile, integration CI ([39a5c44](https://github.com/mruthyunjaya-lakkappanavar/sample-app-python/commit/39a5c44d01f460614902084845baa1075fb129bc))
+
+
+### Bug Fixes
+
+* resolve lint errors (unused imports, unused variable) ([90e3bb2](https://github.com/mruthyunjaya-lakkappanavar/sample-app-python/commit/90e3bb203f9618e7c64353c9f66d03abdbe23241))
+
 ## [1.1.0](https://github.com/mruthyunjaya-lakkappanavar/sample-app-python/compare/v1.0.0...v1.1.0) (2026-02-13)
 
 
