@@ -15,7 +15,7 @@ setup(
     extras_require={
         "dev": [
             "flake8>=7.0.0,<8.0.0",
-            "pytest>=8.0.0,<9.0.0",
+            "pytest>=8.0.0,<10.0.0",
             "httpx>=0.27.0,<1.0.0",
         ],
     },
